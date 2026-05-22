@@ -305,6 +305,46 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
         </div>
       </div>
 
+      {/* ── Flex share strip — appears once amulet is rare+ ── */}
+      {shrine.streak >= 7 && (
+        <div style={{
+          marginTop: 12,
+          background: 'linear-gradient(135deg, rgba(212,154,58,0.18), rgba(179,80,58,0.18))',
+          border: '1.5px dashed #d49a3a',
+          borderRadius: 14, padding: '10px 12px',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            background: amulet.color,
+            color: '#f4ead7', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, boxShadow: '0 0 16px ' + amulet.glow,
+          }}>{amulet.icon}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: '#8a3a28', letterSpacing: '0.18em', fontWeight: 600 }}>
+              ◇ เครื่องรางระดับ {amulet.tier.toUpperCase()} ◇
+            </div>
+            <div style={{ fontFamily: 'Charmonman, cursive', fontSize: 16, color: '#b3503a', fontWeight: 700, lineHeight: 1.1, marginTop: 2 }}>
+              อวดให้เพื่อนเห็นสิ!
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button type="button" onClick={() => shareAmulet(amulet, shrine.streak)} style={{
+              background: '#b3503a', color: '#fff8ec', border: 'none',
+              borderRadius: 8, padding: '6px 10px',
+              fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 11, fontWeight: 500,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}>🔗 แชร์</button>
+            <button type="button" onClick={() => downloadAmuletCard(amulet, shrine.streak)} style={{
+              background: '#fff8ec', color: '#2a1f17', border: '1px solid rgba(42,31,23,0.3)',
+              borderRadius: 8, padding: '6px 10px',
+              fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 11, fontWeight: 500,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}>📥 รูป</button>
+          </div>
+        </div>
+      )}
+
       {/* ── Today's check-in card ── */}
       <div style={{
         marginTop: 14,
@@ -605,6 +645,45 @@ function QuestModal({ onClose, userAnswers = {} }) {
             })}
           </div>
 
+          {/* ── Send merits to ศอ.10 when complete ── */}
+          {completed === 7 && (
+            <div style={{
+              marginTop: 14, padding: '12px 12px',
+              background: 'linear-gradient(135deg, rgba(212,154,58,0.18), rgba(90,122,62,0.18))',
+              border: '1.5px dashed #5a7a3e',
+              borderRadius: 14,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div style={{ fontSize: 26 }}>🏆</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: '#3f5a28', letterSpacing: '0.18em', fontWeight: 600 }}>
+                    ◇ ภารกิจสำเร็จ ◇
+                  </div>
+                  <div style={{ fontFamily: 'Mitr, sans-serif', fontSize: 15, color: '#2a1f17', fontWeight: 600 }}>
+                    ส่งแต้มบุญสุขภาพให้หมอ ศอ.10
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 12, color: '#5a4a3a', lineHeight: 1.5, marginBottom: 10 }}>
+                ส่งสรุป 7 วันเข้า LINE OA → ทีมคลินิก LM ใช้อ้างอิงตอนนัดหมายจริง
+              </div>
+              <button type="button" onClick={() => {
+                const lib2 = QUEST_LIBRARY[active.pillar];
+                const summary = `[แต้มบุญสุขภาพ · ${lib2.title}]\n%0Aภารกิจ 7 วันสำเร็จครบ ✓\n%0A${lib2.tasks.map((t,i)=>`วัน ${i+1}: ${t}`).join('\n%0A')}\n%0A\n%0Aขอนัดคลินิก LM ครับ/ค่ะ`;
+                window.open(`https://line.me/R/oaMessage/@hpc10/?${summary}`, '_blank');
+              }} style={{
+                width: '100%', background: '#06c755', color: '#fff', border: 'none',
+                borderRadius: 12, padding: '10px',
+                fontFamily: 'Mitr, sans-serif', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                boxShadow: '0 3px 0 #04a047',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                <span style={{ fontSize: 16 }}>💬</span>
+                ส่งให้ ศอ.10 ผ่าน LINE
+              </button>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button type="button" onClick={() => {
               const updated = { ...shrine, quest: null };
@@ -629,8 +708,94 @@ function QuestModal({ onClose, userAnswers = {} }) {
   );
 }
 
+// ── Helper: build a share blurb that includes the active snark ─────
+function buildSnarkShareText(score, status, answers) {
+  const sorted = Object.keys(answers)
+    .map(k => ({ k, s: answers[k].s }))
+    .sort((a,b) => a.s - b.s);
+  const lowest = sorted[0];
+  if (!lowest) return `ฉันเช็กดวงสุขภาพได้ ${score}% — ${status} · ลองเสี่ยงเซียมซีของคุณดูสิ`;
+  const snark = pickSnark(lowest.k, lowest.s);
+  if (!snark) return `ฉันเช็กดวงสุขภาพได้ ${score}% — ${status} · ลองเสี่ยงเซียมซีของคุณดูสิ`;
+  return `อาจารย์หมูทักฉันว่า: "${snark}" — เช็กดวงสุขภาพคุณบ้างมั้ย? (${score}% · ${status})`;
+}
+
+// ── Helper: build amulet flex text ───────────────────────────
+function buildAmuletShareText(amulet, streak) {
+  return `ฉันสะสม "${amulet.name}" ของอาจารย์หมูแล้ว! ติดต่อกัน ${streak} วัน 🔥 มูเตลู อีทติ้ง · ดวงสุขภาพแบบไทยบ้าน`;
+}
+
+// ── Helper: render an amulet card as PNG for sharing ────────
+function downloadAmuletCard(amulet, streak) {
+  const c = document.createElement('canvas');
+  c.width = 1080; c.height = 1080;
+  const ctx = c.getContext('2d');
+  // dark altar background
+  const g = ctx.createRadialGradient(540, 540, 0, 540, 540, 700);
+  g.addColorStop(0, '#3a2a1f'); g.addColorStop(1, '#1d1814');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 1080, 1080);
+  // glow
+  if (amulet.glow !== 'transparent') {
+    const glow = ctx.createRadialGradient(540, 480, 0, 540, 480, 400);
+    glow.addColorStop(0, amulet.glow);
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, 1080, 1080);
+  }
+  // title
+  ctx.fillStyle = '#d49a3a';
+  ctx.font = 'bold 26px "IBM Plex Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('◇  ศาลเจ้าหมู  ◇', 540, 130);
+  // amulet circle
+  ctx.beginPath();
+  ctx.arc(540, 480, 200, 0, Math.PI * 2);
+  ctx.fillStyle = amulet.color;
+  ctx.fill();
+  ctx.lineWidth = 6; ctx.strokeStyle = '#d49a3a';
+  ctx.stroke();
+  // amulet icon
+  ctx.fillStyle = '#f4ead7';
+  ctx.font = 'bold 180px "Mitr", sans-serif';
+  ctx.fillText(amulet.icon, 540, 540);
+  // name
+  ctx.fillStyle = '#f4ead7';
+  ctx.font = 'bold 44px "Mitr", sans-serif';
+  ctx.fillText(amulet.name, 540, 780);
+  // streak number
+  ctx.fillStyle = '#d49a3a';
+  ctx.font = 'bold 96px "Mitr", sans-serif';
+  ctx.fillText(streak + ' วัน', 540, 900);
+  // sub
+  ctx.fillStyle = 'rgba(244,234,215,0.6)';
+  ctx.font = '24px "IBM Plex Sans Thai", sans-serif';
+  ctx.fillText('ติดต่อกัน · มูเตลู อีทติ้ง', 540, 960);
+  // footer
+  ctx.fillStyle = '#b3503a';
+  ctx.font = '22px "Mitr", sans-serif';
+  ctx.fillText('เช็กดวงของคุณบ้างมั้ย?', 540, 1020);
+  const a = document.createElement('a');
+  a.download = `amulet-${amulet.tier}-${streak}d.png`;
+  a.href = c.toDataURL('image/png');
+  a.click();
+  (window.__showToast || (() => {}))('📥 บันทึกการ์ดเครื่องรางเรียบร้อย · เอาไปอวดเพื่อนได้แล้ว');
+}
+
+// ── Flex amulet share helper ────────────────────────────────
+async function shareAmulet(amulet, streak) {
+  const text = buildAmuletShareText(amulet, streak);
+  const url = window.location.href.split('?')[0];
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: 'เครื่องรางของฉัน · มูเตลู อีทติ้ง', text, url });
+    } else {
+      await navigator.clipboard.writeText(text + '\n' + url);
+      (window.__showToast || alert)('📋 คัดลอกข้อความอวดเครื่องรางแล้ว ส่งต่อใน LINE/Facebook ได้เลย');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') (window.__showToast || (() => {}))('แชร์ไม่ผ่าน · ลองอีกครั้ง');
+  }
+}
+
 Object.assign(window, {
-  ScreenAltar, QuestModal,
-  pickSnark, SNARK, AMULETS, getAmulet, loadShrine, saveShrine, applyCheckin,
-  DAILY_QUESTIONS, pickTodayQuestion, QUEST_LIBRARY,
+  buildSnarkShareText, buildAmuletShareText, downloadAmuletCard, shareAmulet,
 });

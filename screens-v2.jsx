@@ -289,7 +289,9 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
     u.searchParams.set('status', status);
     return u.toString();
   })();
-  const shareText = `ฉันเช็กดวงสุขภาพได้ ${score}% — ${status} · ลองเสี่ยงเซียมซีของคุณดูสิ`;
+  const shareText = window.buildSnarkShareText
+    ? window.buildSnarkShareText(score, status, answers)
+    : `ฉันเช็กดวงสุขภาพได้ ${score}% — ${status} · ลองเสี่ยงเซียมซีของคุณดูสิ`;
 
   const shareNative = async () => {
     try {
