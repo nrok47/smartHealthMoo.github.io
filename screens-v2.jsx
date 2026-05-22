@@ -71,7 +71,8 @@ function ScreenCards({ state, setState, nav, theme }) {
   };
 
   return (
-    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 22px 80px', position:'relative' }}>
+    <div className="paper-bg" style={{ height:'100%', display:'flex', flexDirection:'column', position:'relative' }}>
+      <div className="screen-scroll" style={{ flex:1, overflowY:'auto', padding:'56px 22px 0' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding:'8px 0 6px' }}>
         <button type="button" onClick={() => nav('welcome')} style={{
@@ -170,7 +171,9 @@ function ScreenCards({ state, setState, nav, theme }) {
         })}
       </div>
 
-      <div style={{ marginTop: 22, opacity: allAnswered ? 1 : 0.55, transition: 'opacity 0.3s' }}>
+      </div>{/* end scroll */}
+
+      <div style={{ flexShrink: 0, padding: '0 22px 16px', opacity: allAnswered ? 1 : 0.55, transition: 'opacity 0.3s' }}>
         <BigButton variant="brick" disabled={!allAnswered} onClick={() => nav('result')} icon="✦">
           เปิดใบเซียมซี
         </BigButton>
@@ -312,7 +315,8 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
   };
 
   return (
-    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 16px 80px' }}>
+    <div className="paper-bg" style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+      <div className="screen-scroll" style={{ flex:1, overflowY:'auto', padding:'56px 16px 16px' }}>
       {/* ── ใบเซียมซี shell ── */}
       <div style={{
         background: 'linear-gradient(180deg, #fffaef, #f4ead7)',
@@ -572,26 +576,45 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
         </div>
       </div>
 
-      <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
-        <button type="button" onClick={() => nav('cards')} style={{
-          flex: 1, background: 'transparent', border: '1px solid rgba(42,31,23,0.3)',
-          borderRadius: 12, padding: '10px',
-          fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 13, color: '#5a4a3a',
-          cursor: 'pointer',
-        }}>← เปิดใบใหม่</button>
-        <button type="button" onClick={() => nav('altar')} style={{
-          flex: 1, background: '#2a1f17', color: '#f4ead7', border: 'none',
-          borderRadius: 12, padding: '10px',
-          fontFamily: 'Mitr, sans-serif', fontSize: 13, fontWeight: 500,
-          cursor: 'pointer',
-        }}>ฝากดวงไว้ ⛩ →</button>
+      </div>{/* end scroll content */}
+      {/* ── Bottom nav ── */}
+      <div style={{
+        flexShrink: 0,
+        background: '#fff8ec', borderTop: '1px solid rgba(42,31,23,0.15)',
+        padding: '10px 8px 20px',
+        display: 'flex', justifyContent: 'space-around',
+      }}>
+        {[
+          { i: '🏠', t: 'หน้าหลัก', screen: 'welcome' },
+          { i: '🎴', t: 'เสี่ยงใหม่', screen: 'cards' },
+          { i: '📋', t: 'ผลดวง',     screen: 'result' },
+          { i: '⛩', t: 'ศาลเจ้า',   screen: 'altar' },
+        ].map(b => {
+          const active = b.screen === 'result';
+          return (
+            <button key={b.t} type="button" onClick={() => nav(b.screen)} style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              textAlign: 'center', padding: '4px 8px',
+              opacity: active ? 1 : 0.5,
+            }}>
+              <div style={{ fontSize: 20 }}>{b.i}</div>
+              <div style={{
+                fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 10,
+                color: '#2a1f17', marginTop: 3,
+                fontWeight: active ? 600 : 400,
+              }}>{b.t}</div>
+              {active && <div style={{ height: 2, width: 18, background: '#b3503a', borderRadius: 999, margin: '4px auto 0' }}/>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 // Download share card as PNG via Canvas
-function downloadShareCard(score, status, color, answers) {
+async function downloadShareCard(score, status, color, answers) {
+  await document.fonts.ready;
   const c = document.createElement('canvas');
   c.width = 1080; c.height = 1080;
   const ctx = c.getContext('2d');
@@ -755,6 +778,7 @@ function LMModal({ onClose, onRegister }) {
 function RegisterModal({ onClose }) {
   const [form, setForm] = React.useState({ name:'', phone:'', concern:'' });
   const [submitted, setSubmitted] = React.useState(false);
+  const phoneValid = form.phone.replace(/[^\d]/g, '').length >= 9;
   const concerns = [
     { v:'food',  l:'อาหาร / น้ำหนัก',  i:'🍚' },
     { v:'sleep', l:'นอน / พักผ่อน',     i:'🌙' },
@@ -873,14 +897,14 @@ function RegisterModal({ onClose }) {
           </div>
         </div>
 
-        <button type="button" onClick={submit} disabled={!form.name || !form.phone || !form.concern}
+        <button type="button" onClick={submit} disabled={!form.name || !phoneValid || !form.concern}
           style={{
             marginTop: 16, width: '100%',
             background: '#b3503a', color: '#fff8ec',
             border: 'none', borderRadius: 14, padding: '12px',
             fontFamily: 'Mitr, sans-serif', fontSize: 15, fontWeight: 500,
-            cursor: (form.name && form.phone && form.concern) ? 'pointer' : 'not-allowed',
-            opacity: (form.name && form.phone && form.concern) ? 1 : 0.5,
+            cursor: (form.name && phoneValid && form.concern) ? 'pointer' : 'not-allowed',
+            opacity: (form.name && phoneValid && form.concern) ? 1 : 0.5,
             boxShadow: '0 4px 0 #8a3a28',
           }}>
           ✦ ส่งให้ ศอ.10 เลย

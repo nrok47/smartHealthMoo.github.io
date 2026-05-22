@@ -4,11 +4,10 @@
 // ── Welcome screen ──────────────────────────────────────────
 function ScreenWelcome({ nav, theme }) {
   return (
-    <div className="paper-bg screen-scroll" style={{
+    <div className="paper-bg" style={{
       height: '100%', display: 'flex', flexDirection: 'column',
-      padding: '70px 28px 140px',
+      padding: '56px 28px 0',
       position: 'relative',
-      overflowY: 'auto',
     }}>
       {/* top decorative pattern */}
       <div style={{ position: 'absolute', top: 50, left: 0, right: 0, opacity: 0.6 }}>
@@ -70,7 +69,7 @@ function ScreenWelcome({ nav, theme }) {
         </div>
       </div>
 
-      <div style={{ paddingBottom: 16 }}>
+      <div style={{ flexShrink: 0, padding: '0 0 20px' }}>
         <BigButton variant="brick" onClick={() => nav('cards')} icon="✦">
           เริ่มเสี่ยงเซียมซีเลย
         </BigButton>
@@ -532,8 +531,9 @@ function ScreenDashboard({ state, nav, theme }) {
   const pct = (doneCount / tasks.length) * 100;
 
   const days = ['จ','อ','พ','พฤ','ศ','ส','อา'];
-  const today = 3; // Thursday-ish demo
-  const streak = [70, 45, 80, pct, null, null, null];
+  const today = (new Date().getDay() + 6) % 7; // 0=จันทร์ … 6=อาทิตย์
+  const streak = Array.from({length: 7}, (_, i) =>
+    i > today ? null : i === today ? pct : [70, 45, 80, 65, 50, 90, 75][i]);
 
   return (
     <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 22px 110px' }}>
@@ -706,10 +706,10 @@ function ScreenDashboard({ state, nav, theme }) {
         display: 'flex', justifyContent: 'space-around',
       }}>
         {[
-          { i: '🏠', t: 'วันนี้', active: true },
-          { i: '🗓', t: 'แผน', active: false },
-          { i: '📊', t: 'ย้อน', active: false },
-          { i: '◌', t: 'หมู', active: false, onClick: () => nav('welcome') },
+          { i: '🏠', t: 'วันนี้', active: true,  onClick: null },
+          { i: '🗓', t: 'แผน',   active: false, onClick: () => nav('result') },
+          { i: '📊', t: 'ย้อน',  active: false, onClick: () => nav('cards') },
+          { i: '◌', t: 'หมู',    active: false, onClick: () => nav('welcome') },
         ].map(b => (
           <button key={b.t} onClick={b.onClick}
             style={{

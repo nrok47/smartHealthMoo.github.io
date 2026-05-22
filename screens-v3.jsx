@@ -155,6 +155,35 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
   const nextAmulet = AMULETS.find(a => a.min > shrine.streak);
   const todayQ = pickTodayQuestion();
 
+  const activeQuest = shrine.quest;
+  const isOldQuest = activeQuest && (Date.now() - activeQuest.startedAt > 7 * 86400000);
+  const showActiveQuest = activeQuest && !isOldQuest;
+  const questLib = showActiveQuest ? QUEST_LIBRARY[activeQuest.pillar] : null;
+  const questCompleted = showActiveQuest ? activeQuest.checks.filter(Boolean).length : 0;
+  const questSuggestedPillar = React.useMemo(() => {
+    const answered = PILLARS.filter(p => state.pillars && state.pillars[p.key]);
+    if (!answered.length) return null;
+    const key = [...answered].sort((a, b) => state.pillars[a.key].s - state.pillars[b.key].s)[0].key;
+    return PILLARS.find(p => p.key === key);
+  }, [state.pillars]);
+  const toggleQuestDay = (idx) => {
+    if (!showActiveQuest) return;
+    const newChecks = [...activeQuest.checks];
+    newChecks[idx] = !newChecks[idx];
+    const updated = { ...shrine, quest: { ...activeQuest, checks: newChecks } };
+    setShrine(updated); saveShrine(updated);
+  };
+  const clearQuest = () => {
+    const updated = { ...shrine, quest: null };
+    setShrine(updated); saveShrine(updated);
+  };
+
+  React.useEffect(() => {
+    const handler = () => setShrine(loadShrine());
+    window.addEventListener('shrine-changed', handler);
+    return () => window.removeEventListener('shrine-changed', handler);
+  }, []);
+
   const doCheckin = (answer) => {
     const updated = applyCheckin(shrine, answer);
     setShrine(updated);
@@ -184,7 +213,8 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
     : (new Date(Date.now() - 86400000).toISOString().slice(0,10) === shrine.lastCheckin ? 'sleepy' : 'sad'));
 
   return (
-    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 22px 80px' }}>
+    <div className="paper-bg" style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+      <div className="screen-scroll" style={{ flex:1, overflowY:'auto', padding:'56px 22px 0' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <button type="button" onClick={() => nav('welcome')} style={{
@@ -427,30 +457,119 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
         )}
       </div>
 
-      {/* ── Quest CTA ── */}
-      <button type="button" onClick={() => openModal('quest')} style={{
-        marginTop: 14, width: '100%',
-        background: 'linear-gradient(135deg, #d49a3a, #b3503a)',
-        color: '#fff8ec', border: 'none', borderRadius: 16,
-        padding: '14px 16px',
-        fontFamily: 'Mitr, sans-serif', fontSize: 15, fontWeight: 500,
-        cursor: 'pointer', boxShadow: '0 4px 0 #8a3a28',
-        display: 'flex', alignItems: 'center', gap: 12,
-        textAlign: 'left',
-      }}>
-        <div style={{ fontSize: 22 }}>⚔</div>
-        <div style={{ flex: 1 }}>
-          <div>เควสแก้กรรม 7 วัน</div>
-          <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, opacity: 0.85, marginTop: 1, letterSpacing: '0.15em', fontWeight: 400 }}>
-            ภารกิจรายสัปดาห์ · ปลดล็อกเนื้อเรื่อง
+      {/* ── Quest inline ── */}
+      {!showActiveQuest ? (
+        /* ── ยังไม่มี quest: ปุ่มเริ่ม ── */
+        <button type="button" onClick={() => openModal('quest')} style={{
+          marginTop: 14, width: '100%',
+          background: 'linear-gradient(135deg, #d49a3a, #b3503a)',
+          color: '#fff8ec', border: 'none', borderRadius: 16, padding: '14px 16px',
+          fontFamily: 'Mitr, sans-serif', fontSize: 15, fontWeight: 500,
+          cursor: 'pointer', boxShadow: '0 4px 0 #8a3a28',
+          display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
+        }}>
+          <div style={{ fontSize: 22 }}>⚔</div>
+          <div style={{ flex: 1 }}>
+            <div>เริ่มเควสแก้กรรม 7 วัน</div>
+            <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, opacity: 0.85, marginTop: 1, letterSpacing: '0.15em', fontWeight: 400 }}>
+              {questSuggestedPillar ? `แนะนำ: "${questSuggestedPillar.name}" · ดวงตกสุด` : 'เลือก pillar ที่อยากแก้'}
+            </div>
           </div>
+          <div style={{ opacity: 0.7 }}>→</div>
+        </button>
+      ) : (
+        /* ── มี quest active: แสดง inline ── */
+        <div style={{ marginTop: 14 }}>
+          {/* header card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #2a1f17, #3a2a1f)',
+            borderRadius: 18, padding: '14px 16px', color: '#f4ead7', marginBottom: 10,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, opacity: 0.6, letterSpacing: '0.2em' }}>⚔ เควสแก้กรรม</div>
+                <div style={{ fontFamily: 'Mitr, sans-serif', fontSize: 17, fontWeight: 500, marginTop: 2 }}>
+                  {questLib.emoji} {questLib.title}
+                </div>
+              </div>
+              <div style={{ fontFamily: 'Mitr, sans-serif', fontSize: 24, fontWeight: 600, color: '#d49a3a', lineHeight: 1 }}>
+                {questCompleted}<span style={{ fontSize: 13, opacity: 0.5, fontWeight: 400 }}>/7</span>
+              </div>
+            </div>
+            <div style={{ marginTop: 10, height: 6, background: 'rgba(244,234,215,0.12)', borderRadius: 999, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${(questCompleted/7)*100}%`, background: 'linear-gradient(90deg, #d49a3a, #b3503a)', borderRadius: 999, transition: 'width 0.4s' }}/>
+            </div>
+          </div>
+
+          {/* task list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {questLib.tasks.map((t, i) => {
+              const done = activeQuest.checks[i];
+              return (
+                <button key={i} type="button" onClick={() => toggleQuestDay(i)} style={{
+                  background: done ? 'rgba(90,122,62,0.12)' : '#fff8ec',
+                  border: '1.5px solid ' + (done ? '#5a7a3e' : 'rgba(42,31,23,0.18)'),
+                  borderRadius: 14, padding: '11px 14px',
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  cursor: 'pointer', textAlign: 'left', width: '100%',
+                }}>
+                  <div style={{
+                    width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+                    background: done ? '#5a7a3e' : 'transparent',
+                    border: '1.5px solid ' + (done ? '#5a7a3e' : 'rgba(42,31,23,0.4)'),
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#f4ead7', fontSize: 13,
+                  }}>{done && '✓'}</div>
+                  <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: '#b3503a', letterSpacing: '0.15em', minWidth: 34, fontWeight: 600 }}>
+                    วัน {i+1}
+                  </div>
+                  <div style={{
+                    flex: 1, fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 13,
+                    color: '#2a1f17', textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.6 : 1,
+                  }}>{t}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* complete! */}
+          {questCompleted === 7 && (
+            <div style={{ marginTop: 12, padding: '12px', background: 'rgba(90,122,62,0.1)', border: '1.5px dashed #5a7a3e', borderRadius: 14 }}>
+              <div style={{ fontFamily: 'Mitr, sans-serif', fontSize: 14, color: '#2a1f17', fontWeight: 600, marginBottom: 8 }}>
+                🏆 ภารกิจสำเร็จ! ส่งให้หมอ ศอ.10
+              </div>
+              <button type="button" onClick={() => {
+                const summary = encodeURIComponent(
+                  `[แต้มบุญสุขภาพ · ${questLib.title}]\nภารกิจ 7 วันสำเร็จครบ ✓\n` +
+                  questLib.tasks.map((t, i) => `วัน ${i+1}: ${t}`).join('\n') +
+                  '\n\nขอนัดคลินิก LM ครับ/ค่ะ\n#HealthMoo_LM'
+                );
+                window.open(`https://line.me/R/oaMessage/@hpc10/?${summary}`, '_blank');
+              }} style={{
+                width: '100%', background: '#06c755', color: '#fff', border: 'none',
+                borderRadius: 12, padding: '10px',
+                fontFamily: 'Mitr, sans-serif', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                💬 ส่งให้ ศอ.10 ผ่าน LINE
+              </button>
+            </div>
+          )}
+
+          {/* เปลี่ยนเควส */}
+          <button type="button" onClick={clearQuest} style={{
+            marginTop: 8, width: '100%',
+            background: 'transparent', border: '1px solid rgba(42,31,23,0.25)',
+            borderRadius: 12, padding: '8px',
+            fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 12, color: '#8a7a66',
+            cursor: 'pointer',
+          }}>↻ เปลี่ยนเควส</button>
         </div>
-        <div style={{ opacity: 0.7 }}>→</div>
-      </button>
+      )}
 
       {/* ── Re-take seance ── */}
       <button type="button" onClick={() => nav('cards')} style={{
-        marginTop: 10, width: '100%',
+        marginTop: 10, marginBottom: 16, width: '100%',
         background: 'transparent', border: '1.5px solid rgba(42,31,23,0.3)',
         borderRadius: 16, padding: '12px',
         fontFamily: 'Mitr, sans-serif', fontSize: 14, color: '#5a4a3a',
@@ -459,6 +578,37 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
       }}>
         <span>🎴</span> เสี่ยงเซียมซีใหม่
       </button>
+      </div>{/* end scroll */}
+
+      {/* ── Bottom nav ── */}
+      <div style={{
+        flexShrink: 0,
+        background: '#fff8ec', borderTop: '1px solid rgba(42,31,23,0.15)',
+        padding: '10px 8px 20px',
+        display: 'flex', justifyContent: 'space-around',
+      }}>
+        {[
+          { i: '🏠', t: 'หน้าหลัก', screen: 'welcome' },
+          { i: '🎴', t: 'เสี่ยงใหม่', screen: 'cards' },
+          { i: '📋', t: 'ผลดวง',     screen: 'result' },
+          { i: '⛩', t: 'ศาลเจ้า',   screen: 'altar' },
+        ].map(b => {
+          const active = b.screen === 'altar';
+          return (
+            <button key={b.t} type="button" onClick={() => nav(b.screen)} style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              textAlign: 'center', padding: '4px 8px', opacity: active ? 1 : 0.5,
+            }}>
+              <div style={{ fontSize: 20 }}>{b.i}</div>
+              <div style={{
+                fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 10,
+                color: '#2a1f17', marginTop: 3, fontWeight: active ? 600 : 400,
+              }}>{b.t}</div>
+              {active && <div style={{ height: 2, width: 18, background: '#b3503a', borderRadius: 999, margin: '4px auto 0' }}/>}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -499,6 +649,8 @@ function QuestModal({ onClose, userAnswers = {} }) {
     const updated = { ...shrine, quest: newQuest };
     setShrine(updated);
     saveShrine(updated);
+    window.dispatchEvent(new CustomEvent('shrine-changed'));
+    onClose();
   };
 
   const toggleDay = (idx) => {
@@ -508,6 +660,7 @@ function QuestModal({ onClose, userAnswers = {} }) {
     const updated = { ...shrine, quest: { ...active, checks: newChecks } };
     setShrine(updated);
     saveShrine(updated);
+    window.dispatchEvent(new CustomEvent('shrine-changed'));
   };
 
   const completed = showActive ? active.checks.filter(Boolean).length : 0;
@@ -685,7 +838,11 @@ function QuestModal({ onClose, userAnswers = {} }) {
               </div>
               <button type="button" onClick={() => {
                 const lib2 = QUEST_LIBRARY[active.pillar];
-                const summary = `[แต้มบุญสุขภาพ · ${lib2.title}]\n%0Aภารกิจ 7 วันสำเร็จครบ ✓\n%0A${lib2.tasks.map((t,i)=>`วัน ${i+1}: ${t}`).join('\n%0A')}\n%0A\n%0Aขอนัดคลินิก LM ครับ/ค่ะ\n%0A#HealthMoo_LM`;
+                const summary = encodeURIComponent(
+                  `[แต้มบุญสุขภาพ · ${lib2.title}]\nภารกิจ 7 วันสำเร็จครบ ✓\n` +
+                  lib2.tasks.map((t, i) => `วัน ${i+1}: ${t}`).join('\n') +
+                  '\n\nขอนัดคลินิก LM ครับ/ค่ะ\n#HealthMoo_LM'
+                );
                 window.open(`https://line.me/R/oaMessage/@hpc10/?${summary}`, '_blank');
               }} style={{
                 width: '100%', background: '#06c755', color: '#fff', border: 'none',
@@ -742,7 +899,8 @@ function buildAmuletShareText(amulet, streak) {
 }
 
 // ── Helper: render an amulet card as PNG for sharing ────────
-function downloadAmuletCard(amulet, streak) {
+async function downloadAmuletCard(amulet, streak) {
+  await document.fonts.ready;
   const c = document.createElement('canvas');
   c.width = 1080; c.height = 1080;
   const ctx = c.getContext('2d');
@@ -826,5 +984,6 @@ async function shareAmulet(amulet, streak) {
 }
 
 Object.assign(window, {
+  pickSnark,
   buildSnarkShareText, buildAmuletShareText, downloadAmuletCard, shareAmulet,
 });

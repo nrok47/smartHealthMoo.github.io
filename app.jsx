@@ -1,12 +1,11 @@
 // Main app — router, tweaks, flow map overlay
 
-const SCREEN_ORDER = ['welcome', 'cards', 'result', 'altar', 'dashboard'];
+const SCREEN_ORDER = ['welcome', 'cards', 'result', 'altar'];
 const SCREEN_LABELS = {
-  welcome:   'Welcome',
-  cards:     'เซียมซี ๖ ใบ',
-  result:    'ใบเซียมซี',
-  altar:     'ศาลเจ้าหมู',
-  dashboard: 'แดชบอร์ด',
+  welcome: 'Welcome',
+  cards:   'เซียมซี ๖ ใบ',
+  result:  'ใบเซียมซี',
+  altar:   'ศาลเจ้าหมู + ภารกิจ',
   // legacy 5-question flow (still reachable via Tweaks)
   q1: 'Q1 · พลัง',
   q2: 'Q2 · ใจ',
@@ -20,8 +19,8 @@ function ScreenRouter({ screen, state, setState, nav, theme, openModal }) {
     case 'welcome':   return <ScreenWelcome   nav={nav} theme={theme}/>;
     case 'cards':     return <ScreenCards     state={state} setState={setState} nav={nav} theme={theme}/>;
     case 'result':    return <ScreenResultV2  state={state} nav={nav} theme={theme} openModal={openModal}/>;
+    case 'dashboard': // legacy redirect → altar
     case 'altar':     return <ScreenAltar     state={state} setState={setState} nav={nav} theme={theme} openModal={openModal}/>;
-    case 'dashboard': return <ScreenDashboard state={state} nav={nav} theme={theme}/>;
     // legacy
     case 'q1':        return <ScreenQ1   state={state} setState={setState} nav={nav} theme={theme}/>;
     case 'q2':        return <ScreenQ2   state={state} setState={setState} nav={nav} theme={theme}/>;
@@ -150,7 +149,7 @@ function App() {
   });
   const [toast, setToast] = React.useState(null);
   const [flowOpen, setFlowOpen] = React.useState(false);
-  const [t, setTweak] = (window.useTweaks ? useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}]);
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   // Track viewport changes so rotation/resize re-applies mode
   React.useEffect(() => {
