@@ -67,9 +67,7 @@ function ScreenWelcome({ nav, theme }) {
             </div>
           ))}
         </div>
-      </div>
-
-      <div style={{ paddingBottom: 16 }}>
+              <div style={{ paddingBottom: 16 }}>
         <BigButton variant="brick" onClick={() => nav('cards')} icon="✦">
           เริ่มเสี่ยงเซียมซีเลย
         </BigButton>
@@ -80,6 +78,9 @@ function ScreenWelcome({ nav, theme }) {
           ✿ ปลอดภัย ข้อมูลอยู่ในเครื่องคุณเท่านั้น ✿
         </div>
       </div>
+      </div>
+
+
     </div>
   );
 }
