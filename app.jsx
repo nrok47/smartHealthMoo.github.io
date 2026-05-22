@@ -123,8 +123,21 @@ function App() {
   // Load persisted quiz state from localStorage
   const PERSIST_KEY = 'health-moo-v2';
   const persisted = (() => {
-    try { return JSON.parse(localStorage.getItem(PERSIST_KEY) || 'null'); }
-    catch { return null; }
+    try {
+      // Check if localStorage is available (not blocked by privacy settings)
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return null;
+      }
+      const testKey = '__localStorage_test__';
+      try {
+        localStorage.setItem(testKey, 'test');
+        localStorage.removeItem(testKey);
+      } catch (e) {
+        // localStorage is blocked (e.g., private mode)
+        return null;
+      }
+      return JSON.parse(localStorage.getItem(PERSIST_KEY) || 'null');
+    } catch { return null; }
   })();
 
   const [screen, setScreen] = React.useState(persisted?.screen || 'welcome');

@@ -107,6 +107,18 @@ function todayKey() { return new Date().toISOString().slice(0,10); }
 const SHRINE_KEY = 'health-moo-shrine';
 function loadShrine() {
   try {
+    // Check if localStorage is available (not blocked by privacy settings)
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      return { streak: 0, lastCheckin: null, history: {}, quest: null };
+    }
+    const testKey = '__localStorage_test__';
+    try {
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+    } catch (e) {
+      // localStorage is blocked (e.g., private mode)
+      return { streak: 0, lastCheckin: null, history: {}, quest: null };
+    }
     const raw = JSON.parse(localStorage.getItem(SHRINE_KEY) || 'null');
     return raw || { streak: 0, lastCheckin: null, history: {}, quest: null };
   } catch {
@@ -114,7 +126,11 @@ function loadShrine() {
   }
 }
 function saveShrine(s) {
-  try { localStorage.setItem(SHRINE_KEY, JSON.stringify(s)); } catch {}
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(SHRINE_KEY, JSON.stringify(s));
+    }
+  } catch {}
 }
 
 function applyCheckin(shrine, answer) {
@@ -307,7 +323,7 @@ function ScreenAltar({ state, setState, nav, theme, openModal }) {
 
       {/* ── Flex share strip — appears once amulet is rare+ ── */}
       {shrine.streak >= 7 && (
-        <div style={{
+        <div className="glow-pulse" style={{
           marginTop: 12,
           background: 'linear-gradient(135deg, rgba(212,154,58,0.18), rgba(179,80,58,0.18))',
           border: '1.5px dashed #d49a3a',
@@ -647,7 +663,7 @@ function QuestModal({ onClose, userAnswers = {} }) {
 
           {/* ── Send merits to ศอ.10 when complete ── */}
           {completed === 7 && (
-            <div style={{
+            <div className="shimmer-effect" style={{
               marginTop: 14, padding: '12px 12px',
               background: 'linear-gradient(135deg, rgba(212,154,58,0.18), rgba(90,122,62,0.18))',
               border: '1.5px dashed #5a7a3e',
@@ -669,7 +685,7 @@ function QuestModal({ onClose, userAnswers = {} }) {
               </div>
               <button type="button" onClick={() => {
                 const lib2 = QUEST_LIBRARY[active.pillar];
-                const summary = `[แต้มบุญสุขภาพ · ${lib2.title}]\n%0Aภารกิจ 7 วันสำเร็จครบ ✓\n%0A${lib2.tasks.map((t,i)=>`วัน ${i+1}: ${t}`).join('\n%0A')}\n%0A\n%0Aขอนัดคลินิก LM ครับ/ค่ะ`;
+                const summary = `[แต้มบุญสุขภาพ · ${lib2.title}]\n%0Aภารกิจ 7 วันสำเร็จครบ ✓\n%0A${lib2.tasks.map((t,i)=>`วัน ${i+1}: ${t}`).join('\n%0A')}\n%0A\n%0Aขอนัดคลินิก LM ครับ/ค่ะ\n%0A#HealthMoo_LM`;
                 window.open(`https://line.me/R/oaMessage/@hpc10/?${summary}`, '_blank');
               }} style={{
                 width: '100%', background: '#06c755', color: '#fff', border: 'none',
@@ -785,14 +801,27 @@ async function shareAmulet(amulet, streak) {
   const text = buildAmuletShareText(amulet, streak);
   const url = window.location.href.split('?')[0];
   try {
-    if (navigator.share) {
+    // Check if navigator.share is available and not in LINE Webview
+    const isLineWebview = /Line/i.test(navigator.userAgent) || /FBAN/i.test(navigator.userAgent) || /FBAV/i.test(navigator.userAgent);
+    if (navigator.share && !isLineWebview) {
       await navigator.share({ title: 'เครื่องรางของฉัน · มูเตลู อีทติ้ง', text, url });
     } else {
+      // Fallback: copy to clipboard and show platform-specific options
       await navigator.clipboard.writeText(text + '\n' + url);
-      (window.__showToast || alert)('📋 คัดลอกข้อความอวดเครื่องรางแล้ว ส่งต่อใน LINE/Facebook ได้เลย');
+      (window.__showToast || alert)('📋 คัดลอกข้อความอวดเครื่องรางแล้ว · วางใน LINE/Facebook ได้เลย');
     }
   } catch (e) {
-    if (e.name !== 'AbortError') (window.__showToast || (() => {}))('แชร์ไม่ผ่าน · ลองอีกครั้ง');
+    if (e.name !== 'AbortError') {
+      // Secondary fallback: try platform-specific URLs
+      try {
+        const encodedUrl = encodeURIComponent(url);
+        const encodedText = encodeURIComponent(text);
+        // Try LINE share as fallback
+        window.open(`https://social-plugins.line.me/lineit/share?url=${encodedUrl}&text=${encodedText}`, '_blank');
+      } catch (fallbackError) {
+        (window.__showToast || (() => {}))('แชร์ไม่ผ่าน · ลองคัดลอกลิงก์แทน');
+      }
+    }
   }
 }
 
