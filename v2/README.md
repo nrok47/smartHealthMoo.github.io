@@ -34,28 +34,9 @@ Welcome
       → Result · ใบเซียมซีแก้เคล็ด ตัวที่ ๑๐
           ├─ 🚀 LM Popup → Register Form (3 ช่อง)
           ├─ 📖 Wisdom Library (เรียงตามจุดดวงตกสุด)
-          ├─ ⚔ Quest 7 วัน (เริ่มภารกิจจากจุดที่ดวงตก)
-          ├─ Snark (คำทำนายจี้ใจดำสไตล์ไทยบ้าน)
           └─ Share Zone (Web Share API / Canvas PNG / LINE / Facebook)
-      → ⛩ ศาลเจ้าหมู (Altar — daily home)
-          ├─ Streak counter + เครื่องรางสุขภาพ (6 ระดับ)
-          ├─ Daily check-in (1 ข้อ/วัน · 10 หัวข้อหมุน)
-          ├─ 14-day calendar
-          └─ Quest 7 วัน
+      → Dashboard (streak, tasks, bottom nav)
 ```
-
-## ⛩ V3 Gamification
-
-3 กลไกสร้างพฤติกรรม (Retention + Behavior Change):
-
-| ฟีเจอร์ | กลไก | ลอกมาจาก |
-|---------|------|----------|
-| **เครื่องรางสุขภาพ** | ติดต่อกัน 1/3/7/14/30 วัน → ไต่ระดับเครื่องราง 6 ขั้น (ใบเริ่ม → กล้าหาญ → นอนเต็มอิ่ม → เลี่ยมทอง → เทพอาจารย์หมู) | Plant Nanny |
-| **เควสแก้กรรม 7 วัน** | เลือกเสาที่ดวงตก → ภารกิจ 7 วัน 7 ข้อ → ติ๊กถูกในการ์ด | Zombies, Run! |
-| **คำทำนายจี้ใจดำ** | คะแนนต่ำ → หมูจิกเบาๆ ด้วยสำนวนไทยบ้าน ("เซเว่นรู้จักคุณดีกว่าหมอเลยมั้ย?") | Duolingo |
-
-**Storage:** localStorage key `health-moo-shrine` เก็บ streak + history + active quest
-**Privacy:** ไม่เก็บข้อมูลส่วนตัวหรือคำตอบจาก Register form
 
 ## 🔗 URL Query Params
 

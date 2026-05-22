@@ -125,7 +125,7 @@ function BigButton({ children, onClick, variant = 'brick', icon, disabled }) {
   }[variant];
   const [pressed, setPressed] = React.useState(false);
   return (
-    <button
+    <button type="button"
       onClick={onClick}
       disabled={disabled}
       onMouseDown={() => setPressed(true)}
@@ -174,7 +174,7 @@ function ChipGroup({ options, value, onChange, multi = false, columns = 2 }) {
       {options.map((opt, i) => {
         const sel = isSelected(opt.value);
         return (
-          <button key={opt.value} onClick={() => toggle(opt.value)}
+          <button type="button" key={opt.value} onClick={() => toggle(opt.value)}
             className="float-up"
             style={{
               animationDelay: (i * 40) + 'ms',
@@ -306,7 +306,7 @@ function ScreenHeader({ step, total, onBack, accent }) {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '8px 0 18px',
     }}>
-      <button onClick={onBack} style={{
+      <button type="button" onClick={onBack} style={{
         background: 'transparent', border: '1px solid rgba(42,31,23,0.25)',
         borderRadius: 999, padding: '6px 12px', cursor: 'pointer',
         fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, color: '#5a4a3a',

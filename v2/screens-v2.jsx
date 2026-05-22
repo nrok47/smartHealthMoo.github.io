@@ -71,7 +71,7 @@ function ScreenCards({ state, setState, nav, theme }) {
   };
 
   return (
-    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 22px 80px', position:'relative' }}>
+    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 22px 50px', position:'relative' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding:'8px 0 6px' }}>
         <button type="button" onClick={() => nav('welcome')} style={{
@@ -296,9 +296,13 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
       if (navigator.share) await navigator.share({ title:'มูเตลู อีทติ้ง — ดวงสุขภาพ', text:shareText, url:shareUrl });
       else {
         await navigator.clipboard.writeText(shareUrl);
-        alert('คัดลอกลิงก์แล้ว!');
+        (window.__showToast || alert)('📋 คัดลอกลิงก์แล้ว · ส่งต่อเข้า LINE หรือ Facebook ได้เลย');
       }
-    } catch (e) {}
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        (window.__showToast || alert)('แชร์ไม่ผ่าน · ลองอีกครั้ง');
+      }
+    }
   };
   const shareTo = (platform) => {
     const u = encodeURIComponent(shareUrl);
@@ -310,7 +314,7 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
   };
 
   return (
-    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 16px 80px' }}>
+    <div className="paper-bg screen-scroll" style={{ height:'100%', overflowY:'auto', padding:'56px 16px 48px' }}>
       {/* ── ใบเซียมซี shell ── */}
       <div style={{
         background: 'linear-gradient(180deg, #fffaef, #f4ead7)',
@@ -399,33 +403,6 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
               )}
               {highest && answers[highest.key]?.s >= 70 && <> ส่วนเรื่อง "<b style={{ color: '#5a7a3e' }}>{highest.name}</b>" ดวงคุณแจ่ม รักษาไว้ให้ดี</>}
             </div>
-
-            {/* ── Snark zone — Duolingo-style จี้ใจดำ ── */}
-            {lowest[0] && window.pickSnark && (() => {
-              const snark = window.pickSnark(lowest[0].key, answers[lowest[0].key].s);
-              if (!snark) return null;
-              return (
-                <div style={{
-                  marginTop: 12, padding: '10px 12px',
-                  background: 'rgba(138,58,40,0.08)',
-                  border: '1px dashed rgba(138,58,40,0.4)',
-                  borderRadius: 10,
-                  display: 'flex', gap: 10, alignItems: 'flex-start',
-                }}>
-                  <div style={{ flexShrink: 0 }}>
-                    <MooMascot size={36} mood="sad" wobble/>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: '#8a3a28', letterSpacing: '0.18em', fontWeight: 600, marginBottom: 2 }}>
-                      หมูจิกเบาๆ →
-                    </div>
-                    <div style={{ fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 12.5, color: '#2a1f17', lineHeight: 1.55, fontStyle: 'italic' }}>
-                      "{snark}"
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
           </div>
         </div>
 
@@ -471,24 +448,6 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
             </div>
           </div>
           <div style={{ color: '#8a7a66' }}>→</div>
-        </button>
-
-        <button type="button" onClick={() => openModal('quest')} style={{
-          background: 'linear-gradient(135deg, #d49a3a, #b3503a)', color: '#fff8ec',
-          border: 'none', borderRadius: 16, padding: '14px 18px',
-          fontFamily: 'Mitr, sans-serif', fontSize: 16, fontWeight: 500, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 12,
-          textAlign: 'left',
-          boxShadow: '0 4px 0 rgba(42,31,23,0.3)',
-        }}>
-          <div style={{ fontSize: 22 }}>⚔</div>
-          <div style={{ flex: 1 }}>
-            <div>เริ่มเควสแก้กรรม 7 วัน</div>
-            <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, opacity: 0.85, letterSpacing: '0.15em', marginTop: 1, fontWeight: 400 }}>
-              ภารกิจรายสัปดาห์ · จากจุดที่ดวงตก
-            </div>
-          </div>
-          <div style={{ opacity: 0.7 }}>→</div>
         </button>
       </div>
 
@@ -577,12 +536,12 @@ function ScreenResultV2({ state, nav, theme, openModal }) {
           fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 13, color: '#5a4a3a',
           cursor: 'pointer',
         }}>← เปิดใบใหม่</button>
-        <button type="button" onClick={() => nav('altar')} style={{
-          flex: 1, background: '#2a1f17', color: '#f4ead7', border: 'none',
+        <button type="button" onClick={() => nav('dashboard')} style={{
+          flex: 1, background: 'transparent', border: '1px solid rgba(42,31,23,0.3)',
           borderRadius: 12, padding: '10px',
-          fontFamily: 'Mitr, sans-serif', fontSize: 13, fontWeight: 500,
+          fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 13, color: '#5a4a3a',
           cursor: 'pointer',
-        }}>ฝากดวงไว้ ⛩ →</button>
+        }}>แดชบอร์ดวันนี้ →</button>
       </div>
     </div>
   );
@@ -658,6 +617,7 @@ function downloadShareCard(score, status, color, answers) {
   a.download = `health-moo-${score}.png`;
   a.href = c.toDataURL('image/png');
   a.click();
+  (window.__showToast || (() => {}))('📥 บันทึกการ์ดเรียบร้อย · เช็คในโฟลเดอร์ดาวน์โหลด');
 }
 
 // ── LM Modal — ใบเซียมซีแก้เคล็ด LM ศอ.10 ────────────────────
@@ -753,14 +713,41 @@ function LMModal({ onClose, onRegister }) {
 function RegisterModal({ onClose }) {
   const [form, setForm] = React.useState({ name:'', phone:'', concern:'' });
   const [submitted, setSubmitted] = React.useState(false);
+  const [errors, setErrors] = React.useState({});
   const concerns = [
     { v:'food',  l:'อาหาร / น้ำหนัก',  i:'🍚' },
     { v:'sleep', l:'นอน / พักผ่อน',     i:'🌙' },
     { v:'move',  l:'ขยับ / ปวดเมื่อย',   i:'🚶' },
     { v:'mind',  l:'ใจ / ความเครียด',   i:'🪷' },
   ];
+  // Thai phone: 10 digits, starts with 0. Format as XXX-XXX-XXXX while typing.
+  const formatPhone = (raw) => {
+    const d = raw.replace(/\D/g, '').slice(0, 10);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0,3)}-${d.slice(3)}`;
+    return `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;
+  };
+  const validatePhone = (v) => {
+    const d = v.replace(/\D/g, '');
+    if (!d) return 'กรอกเบอร์โทร';
+    if (!d.startsWith('0')) return 'เบอร์ไทยขึ้นต้นด้วย 0';
+    if (d.length !== 10) return 'เบอร์ต้อง 10 หลัก';
+    return null;
+  };
+  const validateName = (v) => v.trim().length < 2 ? 'กรอกชื่อให้ครบ' : null;
+  const isValid = !validateName(form.name) && !validatePhone(form.phone) && form.concern;
+
   const submit = () => {
-    // demo only — would webhook into Google Sheets
+    const nameErr = validateName(form.name);
+    const phoneErr = validatePhone(form.phone);
+    const concernErr = !form.concern ? 'เลือก 1 อัน' : null;
+    if (nameErr || phoneErr || concernErr) {
+      setErrors({ name: nameErr, phone: phoneErr, concern: concernErr });
+      return;
+    }
+    setErrors({});
+    // Demo only — replace with fetch() to Apps Script webhook for real Google Sheets save.
+    // See README for the exact code snippet.
     setSubmitted(true);
   };
 
@@ -812,16 +799,22 @@ function RegisterModal({ onClose }) {
               ⌘ ชื่อ-นามสกุล
             </div>
             <input
+              type="text"
               value={form.name}
               onChange={(e) => setForm({...form, name: e.target.value})}
               placeholder="ชื่อจริงเลย หมอจะได้เรียกถูก"
               style={{
                 width: '100%', background: '#fff8ec',
-                border: '1.5px solid rgba(42,31,23,0.25)', borderRadius: 10,
-                padding: '10px 12px',
+                border: '1.5px solid ' + (errors.name ? '#8a3a28' : 'rgba(42,31,23,0.25)'),
+                borderRadius: 10, padding: '10px 12px',
                 fontFamily: 'IBM Plex Sans Thai, sans-serif', fontSize: 14, color: '#2a1f17',
                 outline: 'none', boxSizing: 'border-box',
               }}/>
+            {errors.name && (
+              <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#8a3a28', marginTop: 3, letterSpacing: '0.05em' }}>
+                ⚠ {errors.name}
+              </div>
+            )}
           </div>
 
           {/* Phone */}
@@ -830,18 +823,25 @@ function RegisterModal({ onClose }) {
               ⌘ เบอร์โทร
             </div>
             <input
+              type="tel"
               value={form.phone}
-              onChange={(e) => setForm({...form, phone: e.target.value.replace(/[^\d-]/g,'') })}
+              onChange={(e) => setForm({...form, phone: formatPhone(e.target.value) })}
               placeholder="08x-xxx-xxxx"
               inputMode="tel"
+              maxLength={12}
               style={{
                 width: '100%', background: '#fff8ec',
-                border: '1.5px solid rgba(42,31,23,0.25)', borderRadius: 10,
-                padding: '10px 12px',
+                border: '1.5px solid ' + (errors.phone ? '#8a3a28' : 'rgba(42,31,23,0.25)'),
+                borderRadius: 10, padding: '10px 12px',
                 fontFamily: 'IBM Plex Mono, monospace', fontSize: 14, color: '#2a1f17',
                 letterSpacing: '0.05em',
                 outline: 'none', boxSizing: 'border-box',
               }}/>
+            {errors.phone && (
+              <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#8a3a28', marginTop: 3, letterSpacing: '0.05em' }}>
+                ⚠ {errors.phone}
+              </div>
+            )}
           </div>
 
           {/* Concern chips */}
@@ -871,14 +871,14 @@ function RegisterModal({ onClose }) {
           </div>
         </div>
 
-        <button type="button" onClick={submit} disabled={!form.name || !form.phone || !form.concern}
+        <button type="button" onClick={submit}
           style={{
             marginTop: 16, width: '100%',
             background: '#b3503a', color: '#fff8ec',
             border: 'none', borderRadius: 14, padding: '12px',
             fontFamily: 'Mitr, sans-serif', fontSize: 15, fontWeight: 500,
-            cursor: (form.name && form.phone && form.concern) ? 'pointer' : 'not-allowed',
-            opacity: (form.name && form.phone && form.concern) ? 1 : 0.5,
+            cursor: 'pointer',
+            opacity: isValid ? 1 : 0.85,
             boxShadow: '0 4px 0 #8a3a28',
           }}>
           ✦ ส่งให้ ศอ.10 เลย

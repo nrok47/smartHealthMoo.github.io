@@ -1,11 +1,10 @@
 // Main app — router, tweaks, flow map overlay
 
-const SCREEN_ORDER = ['welcome', 'cards', 'result', 'altar', 'dashboard'];
+const SCREEN_ORDER = ['welcome', 'cards', 'result', 'dashboard'];
 const SCREEN_LABELS = {
   welcome:   'Welcome',
   cards:     'เซียมซี ๖ ใบ',
   result:    'ใบเซียมซี',
-  altar:     'ศาลเจ้าหมู',
   dashboard: 'แดชบอร์ด',
   // legacy 5-question flow (still reachable via Tweaks)
   q1: 'Q1 · พลัง',
@@ -20,7 +19,6 @@ function ScreenRouter({ screen, state, setState, nav, theme, openModal }) {
     case 'welcome':   return <ScreenWelcome   nav={nav} theme={theme}/>;
     case 'cards':     return <ScreenCards     state={state} setState={setState} nav={nav} theme={theme}/>;
     case 'result':    return <ScreenResultV2  state={state} nav={nav} theme={theme} openModal={openModal}/>;
-    case 'altar':     return <ScreenAltar     state={state} setState={setState} nav={nav} theme={theme} openModal={openModal}/>;
     case 'dashboard': return <ScreenDashboard state={state} nav={nav} theme={theme}/>;
     // legacy
     case 'q1':        return <ScreenQ1   state={state} setState={setState} nav={nav} theme={theme}/>;
@@ -40,11 +38,11 @@ function Phone({ screen, state, setState, nav, theme, openModal, modal, closeMod
       {modal === 'lm'       && <LMModal       onClose={closeModal} onRegister={() => openModal('register')}/>}
       {modal === 'register' && <RegisterModal onClose={closeModal}/>}
       {modal === 'wisdom'   && <WisdomModal   onClose={closeModal} userAnswers={state.pillars}/>}
-      {modal === 'quest'    && <QuestModal    onClose={closeModal} userAnswers={state.pillars}/>}
     </div>
   );
 
   if (mode === 'app') {
+    // Fullscreen — no iOS frame, fills viewport
     return (
       <div className="ios-device-wrap" style={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         {screenContent}
@@ -65,7 +63,7 @@ function Phone({ screen, state, setState, nav, theme, openModal, modal, closeMod
 function FlowMap({ state, theme, onClose, onPick }) {
   return (
     <div className="flow-overlay">
-      <button className="flow-close" onClick={onClose}>✕ ปิด</button>
+      <button type="button" className="flow-close" onClick={onClose}>✕ ปิด</button>
       <h2>Flow Map · {SCREEN_ORDER.length} screens</h2>
       <p className="sub">ทุกหน้าจอในแอป — แตะอันไหนเพื่อกระโดดไปดู</p>
 
@@ -116,11 +114,11 @@ const PALETTES = {
 };
 
 function App() {
-  // Auto-detect mode from <html data-mode>: 'app' on mobile, 'demo' on desktop
+  // Read mode from <html data-mode="">: 'app' on mobile (fullscreen), 'demo' on desktop (iOS frame)
   const initialMode = (typeof document !== 'undefined' && document.documentElement.dataset.mode) || 'demo';
   const [mode, setMode] = React.useState(initialMode);
 
-  // Load persisted quiz state from localStorage
+  // Load persisted state from localStorage
   const PERSIST_KEY = 'health-moo-v2';
   const persisted = (() => {
     try { return JSON.parse(localStorage.getItem(PERSIST_KEY) || 'null'); }
@@ -139,7 +137,26 @@ function App() {
   const [flowOpen, setFlowOpen] = React.useState(false);
   const [t, setTweak] = (window.useTweaks ? useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}]);
 
-  // Track viewport changes so rotation/resize re-applies mode
+  // Persist state + screen on change (no PII — only quiz answers)
+  React.useEffect(() => {
+    try {
+      // Skip persisting on the welcome screen so a fresh visit starts clean unless answers exist
+      const hasAnswers = state.pillars && Object.keys(state.pillars).length > 0;
+      if (hasAnswers || screen !== 'welcome') {
+        localStorage.setItem(PERSIST_KEY, JSON.stringify({ screen, state }));
+      }
+    } catch {}
+  }, [screen, state]);
+
+  // Toast helper — show transient message
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2400);
+  };
+  // Expose for other components
+  React.useEffect(() => { window.__showToast = showToast; }, []);
+
+  // Track viewport changes so the user can rotate / resize and have the frame mode follow
   React.useEffect(() => {
     const mql = window.matchMedia('(max-width: 720px)');
     const handler = (e) => {
@@ -153,23 +170,6 @@ function App() {
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, []);
-
-  // Persist quiz state on change (no PII)
-  React.useEffect(() => {
-    try {
-      const hasAnswers = state.pillars && Object.keys(state.pillars).length > 0;
-      if (hasAnswers || screen !== 'welcome') {
-        localStorage.setItem(PERSIST_KEY, JSON.stringify({ screen, state }));
-      }
-    } catch {}
-  }, [screen, state]);
-
-  // Toast helper
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2400);
-  };
-  React.useEffect(() => { window.__showToast = showToast; }, []);
 
   const openModal = (m) => setModal(m);
   const closeModal = () => setModal(null);
@@ -213,8 +213,8 @@ function App() {
     <div className="stage">
       {mode === 'demo' && (
         <div className="stage-label">
-          <b>HEALTH-MOO</b> · มูเตลู อีทติ้ง V3<br/>
-          เซียมซี + ศาลเจ้าหมู + เควส 7 วัน<br/>
+          <b>HEALTH-MOO</b> · มูเตลู อีทติ้ง<br/>
+          เซียมซีสุขภาพ ๖ ใบ · LM ศอ.10 อุบลฯ<br/>
           <span style={{ opacity: 0.5 }}>?mode=app เพื่อฟูลสกรีน</span>
         </div>
       )}
@@ -237,7 +237,7 @@ function App() {
           onPick={(s) => { setScreen(s); setFlowOpen(false); }}/>
       )}
 
-      {/* Toast */}
+      {/* Toast — transient feedback */}
       {toast && (
         <div role="status" aria-live="polite" style={{
           position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
@@ -302,23 +302,6 @@ function App() {
             }}/>
             <TweakButton label="🚀 เปิด LM Popup" onClick={() => openModal('lm')}/>
             <TweakButton label="📖 เปิดหอไตรความรู้" onClick={() => openModal('wisdom')}/>
-            <TweakButton label="⚔ เปิดเควส 7 วัน" onClick={() => openModal('quest')}/>
-            <TweakButton label="✨ ตั้ง streak 5 วัน (test)" onClick={() => {
-              const today = new Date().toISOString().slice(0,10);
-              const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-              const hist = {};
-              for (let i = 0; i < 5; i++) {
-                hist[new Date(Date.now() - i*86400000).toISOString().slice(0,10)] = 'yes';
-              }
-              try { localStorage.setItem('health-moo-shrine', JSON.stringify({
-                streak: 5, lastCheckin: today, history: hist, quest: null,
-              })); } catch {}
-              setScreen('altar');
-            }}/>
-            <TweakButton label="🗑 ล้างศาลเจ้า" onClick={() => {
-              try { localStorage.removeItem('health-moo-shrine'); } catch {}
-              setScreen('altar');
-            }}/>
           </TweakSection>
         </TweaksPanel>
       )}

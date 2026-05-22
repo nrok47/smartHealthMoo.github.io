@@ -67,9 +67,9 @@ function ScreenWelcome({ nav, theme }) {
             </div>
           ))}
         </div>
+             
       </div>
-
-      <div style={{ paddingBottom: 16 }}>
+ <div style={{ paddingBottom: 16 }}>
         <BigButton variant="brick" onClick={() => nav('cards')} icon="✦">
           เริ่มเสี่ยงเซียมซีเลย
         </BigButton>
@@ -80,6 +80,7 @@ function ScreenWelcome({ nav, theme }) {
           ✿ ปลอดภัย ข้อมูลอยู่ในเครื่องคุณเท่านั้น ✿
         </div>
       </div>
+
     </div>
   );
 }
@@ -308,7 +309,7 @@ function ScreenQ5({ state, setState, nav, theme }) {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {presets.map(p => (
-              <button key={p} onClick={() => { setVal(p); setState({...state, wish: p}); }}
+              <button type="button" key={p} onClick={() => { setVal(p); setState({...state, wish: p}); }}
                 style={{
                   background: val === p ? '#2a1f17' : 'transparent',
                   color: val === p ? '#f4ead7' : '#2a1f17',
@@ -371,7 +372,7 @@ function ScreenResult({ state, nav, theme }) {
         <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#b3503a', letterSpacing: '0.18em' }}>
           แผนวันนี้ ✦ {new Date().toLocaleDateString('th-TH', { day:'numeric', month:'short' })}
         </div>
-        <button onClick={() => nav('welcome')} style={{
+        <button type="button" onClick={() => nav('welcome')} style={{
           background: 'transparent', border: '1px solid rgba(42,31,23,0.25)',
           borderRadius: 999, padding: '4px 10px', cursor: 'pointer',
           fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#5a4a3a',
@@ -657,7 +658,7 @@ function ScreenDashboard({ state, nav, theme }) {
         {tasks.map((t) => {
           const isDone = !!done[t.id];
           return (
-            <button key={t.id} onClick={() => setDone({...done, [t.id]: !isDone})}
+            <button type="button" key={t.id} onClick={() => setDone({...done, [t.id]: !isDone})}
               style={{
                 background: isDone ? 'rgba(90,122,62,0.12)' : '#fff8ec',
                 border: '1.5px solid ' + (isDone ? '#5a7a3e' : 'rgba(42,31,23,0.18)'),
@@ -710,7 +711,7 @@ function ScreenDashboard({ state, nav, theme }) {
           { i: '📊', t: 'ย้อน', active: false },
           { i: '◌', t: 'หมู', active: false, onClick: () => nav('welcome') },
         ].map(b => (
-          <button key={b.t} onClick={b.onClick}
+          <button type="button" key={b.t} onClick={b.onClick}
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               textAlign: 'center', padding: 4,
