@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+<meta name="theme-color" content="#b3503a" />
+
+<title>มูเตลู อีทติ้ง · เซียมซีสุขภาพ ๖ ใบ</title>
+<meta name="description" content="เสี่ยงเซียมซีสุขภาพ ๖ ใบ ใน 2 นาที — ดวงสุขภาพคุณวันนี้เป็นยังไง? พร้อมแผนแก้เคล็ดจากหมอ LM ศอ.10 อุบลฯ ฟรี" />
+<meta name="author" content="Health-Moo · ศอ.10 อุบลฯ" />
+<meta name="keywords" content="ดวงชะตา, สุขภาพ, เซียมซี, ไทยบ้าน, ทำนาย, Lifestyle Medicine, ศอ.10" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="มูเตลู อีทติ้ง · เซียมซีสุขภาพ ๖ ใบ" />
+<meta property="og:description" content="เสี่ยงเซียมซีสุขภาพ ๖ ใบ ใน 2 นาที — ดวงสุขภาพคุณวันนี้เป็นยังไง?" />
+<meta property="og:image" content="og-image.png" />
+<meta property="og:locale" content="th_TH" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="มูเตลู อีทติ้ง · เซียมซีสุขภาพ ๖ ใบ" />
+<meta name="twitter:description" content="เสี่ยงเซียมซีสุขภาพ ๖ ใบ ใน 2 นาที — แก้เคล็ดได้ฟรี" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="มูเตลู อีทติ้ง" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Charmonman:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --paper:        #f4ead7;
+    --paper-2:      #ede0c4;
+    --paper-3:      #e3d4b3;
+    --ink:          #2a1f17;
+    --ink-soft:     #5a4a3a;
+    --ink-faint:    #8a7a66;
+    --brick:        #b3503a;
+    --brick-deep:   #8a3a28;
+    --turmeric:     #d49a3a;
+    --leaf:         #5a7a3e;
+    --leaf-deep:    #3f5a28;
+    --indigo:       #3a4f7a;
+    --rose:         #c98a8a;
+    --line:         rgba(42,31,23,0.18);
+    --line-strong:  rgba(42,31,23,0.45);
+    --shadow:       0 1px 0 rgba(42,31,23,0.06), 0 8px 20px -10px rgba(42,31,23,0.25);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', 'Mitr', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+
+  /* Stage — desktop demo mode */
+  body.demo-mode {
+    background: #1d1814;
+  }
+  body.demo-mode .stage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    box-sizing: border-box;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(212,154,58,0.10), transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(90,122,62,0.10), transparent 50%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 6px),
+      #1d1814;
+  }
+
+  /* App mode — fullscreen on mobile */
+  body.app-mode .stage {
+    min-height: 100vh;
+    background: var(--paper);
+  }
+  body.app-mode .ios-device-wrap {
+    width: 100%;
+    height: 100vh;
+  }
+  body.app-mode .stage-label,
+  body.app-mode .flow-btn { display: none !important; }
+
+  .stage-label {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    max-width: 260px;
+    line-height: 1.5;
+  }
+  .stage-label b { color: var(--brick); }
+
+  .flow-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 90;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-btn:hover { background: var(--paper-2); }
+
+  .flow-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,12,8,0.84);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+    overflow-y: auto;
+  }
+  .flow-overlay h2 {
+    color: var(--paper);
+    font-family: 'Mitr', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .flow-overlay p.sub {
+    color: rgba(244,234,215,0.6);
+    font-size: 13px;
+    margin: 0 0 28px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 200px));
+    gap: 28px 32px;
+    max-width: 1200px;
+    width: 100%;
+    justify-content: center;
+  }
+  .flow-thumb {
+    background: var(--paper);
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.18s ease;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .flow-thumb:hover { transform: translateY(-3px); }
+  .flow-thumb .scene { aspect-ratio: 9/19; transform: scale(0.42); transform-origin: top left; width: 480px; pointer-events: none; }
+  .flow-thumb .scene-wrap { aspect-ratio: 9/19; overflow: hidden; }
+  .flow-thumb .label {
+    padding: 10px 14px;
+    background: var(--paper-2);
+    border-top: 1px solid var(--line);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .flow-thumb .label b { color: var(--brick); font-weight: 600; }
+  .flow-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: transparent;
+    border: 1px solid rgba(244,234,215,0.3);
+    color: var(--paper);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  .paper-bg {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(212,154,58,0.10), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(179,80,58,0.08), transparent 50%),
+      var(--paper);
+    position: relative;
+  }
+  .paper-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(42,31,23,0.025) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(42,31,23,0.025) 0 1px, transparent 1px 4px);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .stitched {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 18px;
+  }
+
+  button { font-family: inherit; }
+
+  .screen-scroll::-webkit-scrollbar { width: 0; }
+  .screen-scroll { scrollbar-width: none; }
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-2deg) translateY(0); }
+    50%      { transform: rotate(2deg)  translateY(-4px); }
+  }
+  .moo-wobble { animation: wobble 3.4s ease-in-out infinite; transform-origin: 50% 80%; }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.08); }
+  }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  @keyframes float-up {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .float-up { animation: float-up 0.5s ease-out backwards; }
+
+  @keyframes confetti {
+    0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--cx,0px), var(--cy,80px)) rotate(var(--cr,360deg)); opacity: 0; }
+  }
+
+  @keyframes hp-fill {
+    from { width: 0%; }
+    to   { width: var(--hp-target, 70%); }
+  }
+
+  /* No-JS fallback */
+  noscript .nojs {
+    padding: 60px 24px;
+    text-align: center;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    color: var(--ink);
+  }
+  noscript .nojs h1 { font-family: 'Mitr', sans-serif; color: var(--brick); }
+</style>
+
+<script>
+  // Detect viewport and apply mode class BEFORE app mounts
+  (function () {
+    var isMobile = window.matchMedia('(max-width: 720px)').matches;
+    var params = new URLSearchParams(window.location.search);
+    var override = params.get('mode'); // 'app' | 'demo'
+    var mode = override || (isMobile ? 'app' : 'demo');
+    document.documentElement.dataset.mode = mode;
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.classList.add(mode + '-mode');
+    });
+  })();
+</script>
+</head>
+<body>
+  <noscript>
+    <div class="nojs">
+      <h1>มูเตลู อีทติ้ง</h1>
+      <p>เซียมซีสุขภาพ ๖ ใบ ต้องใช้ JavaScript<br/>กรุณาเปิดใช้งานในเบราว์เซอร์ของคุณ</p>
+    </div>
+  </noscript>
+
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+  <script type="text/babel" src="screens-v2.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>

@@ -48,14 +48,6 @@ Welcome
 
 โหมดเริ่มต้น: viewport ≤ 720px → `app` (fullscreen), > 720px → `demo` (iOS frame)
 
-## 🔒 Persistence
-
-ใช้ `localStorage` (key: `health-moo-v2`) เก็บคำตอบ + หน้าจอปัจจุบัน — user ปิด browser แล้วกลับมาเปิดใหม่ จะเห็นผลเดิม
-
-ปุ่ม "↻ รีเซ็ตคำตอบ" ใน Tweaks panel ล้าง localStorage ให้
-
-**ไม่เก็บข้อมูลส่วนตัว** (ชื่อ, เบอร์โทรจาก Register form ไม่เซฟลง local — ส่งตรงเข้า Apps Script เท่านั้น)
-
 ## 🛠 จุดที่ต้องเปลี่ยนก่อน Go-Live
 
 ### 1. LINE OA ของ ศอ.10
