@@ -140,7 +140,7 @@ function App() {
     } catch { return null; }
   })();
 
-  const [screen, setScreen] = React.useState(persisted?.screen || 'welcome');
+  const [screen, setScreen] = React.useState('welcome');
   const [modal, setModal] = React.useState(null);
   const [state, setState] = React.useState(persisted?.state || {
     // V2 — เซียมซี 6 ใบ

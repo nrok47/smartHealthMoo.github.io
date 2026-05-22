@@ -4,10 +4,11 @@
 // ── Welcome screen ──────────────────────────────────────────
 function ScreenWelcome({ nav, theme }) {
   return (
-    <div className="paper-bg" style={{
+    <div className="paper-bg screen-scroll" style={{
       height: '100%', display: 'flex', flexDirection: 'column',
-      padding: '70px 28px 110px',
+      padding: '70px 28px 140px',
       position: 'relative',
+      overflowY: 'auto',
     }}>
       {/* top decorative pattern */}
       <div style={{ position: 'absolute', top: 50, left: 0, right: 0, opacity: 0.6 }}>
