@@ -6,7 +6,7 @@ function ScreenWelcome({ nav, theme }) {
   return (
     <div className="paper-bg" style={{
       height: '100%', display: 'flex', flexDirection: 'column',
-      padding: '70px 28px 50px',
+      padding: '70px 28px 110px',
       position: 'relative',
     }}>
       {/* top decorative pattern */}
